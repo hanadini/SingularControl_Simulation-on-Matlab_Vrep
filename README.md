@@ -1,7 +1,7 @@
 # Simulation_Matlab_Vrep
 ## Singular Control of Phantom Omni Manipulator
 
-###Introduction
+### Introduction
 Singularities in manipulators are quite complex conditions where the end effector loses its one or more degrees of freedom along or about the singular direction(s). The control of robot manipulator in singular regions and configurations is considered as a remarkable problem since large torques in the joints lead the robot to breakdown. Hence, these singular configurations must normally be avoided, and defining the specified workspace and trajectory is essential for appropriate use of robots. The reduction in the end effector mobility affects its behavior to perform desired tasks in work space. 
 This study focused on the control of robot manipulator in singular region for performing its desired task. In this order, the dynamic consistency is used to avoid any acceleration and torque of joints which can influence the performance of the end effector. The regular control is applied to show how singularity can affect the manipulator behavior. The potential field controller and singular controller are used to lead the manipulator into the singular region. The potential field algorithm based on attractive forces drew the manipulator toward its singular configuration. The singular controller leads the manipulator into the singular boundary to follow its desired task. At the end, applying the switch control between regular control and singular control helps the manipulator to enter the singular region.
 In purpose to design the controllers, it is important to observe the performance of manipulator during the simulation. MATLAB program and V-REP software are used to build the controllers and to monitor the manipulator in singular region. In order to develop the controllers, the essential definitions and the dynamic equations are introduced. Then, the kinematic and dynamic analysis is presented for the PHANTOM Omni manipulator as a RRR planar robot which used in this thesis.
@@ -44,7 +44,7 @@ In order to achieve the dynamic consistency in PHANTOM Omni, decoupling the null
 ![image](https://user-images.githubusercontent.com/54982873/209535737-2ed9cc32-3380-4813-b497-91d293fcb147.png)
 
 
-###DYNAMICS 
+### DYNAMICS 
 In this study, it is important to know the dynamic of the PHANTOM Omni manipulator in the purpose of applying the regular and singular control on RRR serial manipulator. In this section, a dynamic analysis for Omni is presented based on the Newton-Euler algorithm.
 In the Newton-Euler formulation, the equations describe linear motion and angular motion for each link of the manipulator. Of course, since each link is coupled to other links and between them there are action and reaction forces. So these equations of each link contain coupling forces and torques. By computing the inward and outward iterations it is possible to determine all terms of each link as velocity, acceleration, force and torque. 
 
@@ -87,7 +87,7 @@ b)
 ![image](https://user-images.githubusercontent.com/54982873/209536674-011ae79b-ac0a-4f3a-8dfe-4abcc8705ca6.png)
 
 
-###REGULAR CONTROL
+### REGULAR CONTROL
 In this controller of PHANTOM Omni, the last two links should have motion to lead the end effector along x direction. It is not expected to have any rotation and movement about or along y axis. If these conditions are correctly performed Omni manipulator acts like a RR planar robot. So for applying the regular control, at first it is required to perform regular controller in MATLAB for monitoring and observing the performance of the controller on this robot. 
 According to kinematic and dynamic of Omni robot,  the regular control is performed for monitoring how this Omni manipulator behaves while it is approaching the vicinity of singular boundary.
 
@@ -97,13 +97,41 @@ According to kinematic and dynamic of Omni robot,  the regular control is perfor
 
 ![image](https://user-images.githubusercontent.com/54982873/209537066-4d3e5bf6-d13b-429e-9e22-b88c870c4498.png)
 
-###SINGULAR CONTROL
+### SINGULAR CONTROL
 As explained in the previous chapter, in the singular control of Omni manipulator, the robot completely follows the desired direction outside and inside of the singular boundary. Finally manipulator reaches the singular configuration in a stable manner. The Condition number which is the largest singular value of the Jacobian matrix over the smallest value is used as a parameter to detect the singular boundary. When the manipulator approaches its singular position this number increases to the highest value. In Figure for MATLAB simulation of singular control, it shows how the Omni follows accurately the desired direction and also depicts the enhancement of Condition number value in the vicinity of singularities.
 
 ![image](https://user-images.githubusercontent.com/54982873/209537153-26bfbf68-84f1-4c91-b9de-aa59e246a0fe.png)
 
 ![image](https://user-images.githubusercontent.com/54982873/209537168-bc682b5a-a3d3-4d75-932d-424ea6170aab.png)
 
+### V-REP SIMULATION AND RESULTS
+In this V-REP simulator, the torques are sent from MATLAB coding as input to Omni in V-REP, the joints’ and end-effector’s actual motion and also torques and dynamic parameters, all are obtained from V-REP and then sent to MATLAB. 
+First the manner of the manipulator is monitored under regular control and then singular and switch controls. It will show how the robot acts under these controllers, before and after passing singular boundary and region. MATLAB is used as a client to read data from V-REP as a server to receive/ send data. 
+The initial position which will be seen in the next section, is the first, second and last joint angles in V-REP:  . x, y and z are end effector motion along the singular direction , y axis and z axis in [m] unit respectively. U1, U2 and U3 are torques on joint 1 joint 2 and joint 3 in [Nm] unit respectively.
+
+#### V-REP Regular Control (Case1), Kp=25, Kv=5
+
+ (a) End effector motion, (b) Joint Torque and (c) Condition Number
+ 
+![image](https://user-images.githubusercontent.com/54982873/209537640-5ac66737-e77f-4d78-921e-2149ad373e92.png)
+![image](https://user-images.githubusercontent.com/54982873/209537652-08876547-2ed8-484a-936b-f5d410d24a5f.png)
+![image](https://user-images.githubusercontent.com/54982873/209537663-08b755f0-3006-4b92-ad89-2e0945815402.png)
+
+#### V-REP Singular Control (Case1), Kp=25, Kv=5
+
+![image](https://user-images.githubusercontent.com/54982873/209537720-dfadbec3-bc7a-47fc-be21-ff7ef9f87b90.png)
+![image](https://user-images.githubusercontent.com/54982873/209537740-3916f86e-460f-4cfb-9692-f10b6d5709d5.png)
+![image](https://user-images.githubusercontent.com/54982873/209537764-37adf171-9d48-4606-97ce-380e1e3c1840.png)
+
+### CONCLUSION
+
+In this dissertation the kinematic and dynamic calculation of the Phantom Omni robot was described and then the simulation and dynamic analysis was done in MATLAB and V-REP in order to monitor the performance of the robot manipulator under different controllers, such as regular, singular, and switch control of robot in singular region.
+This thesis presents the fundamental mathematic equations of forward and inverse kinematics and describes the singular configuration and dynamic equation of the manipulator and also explains the operational space and null space. 
+The potential field simulation in MATLAB was described for RR planar robot with the purpose of investigating the performance of this approach to control the manipulator in the singular region under the attractive forces.
+PHANTOM Omni manipulator was described according to its kinematic and dynamic equations. Mathematical equations were used for regular and singular control of simulation part.
+In the simulation part the PHANTOM Omni robot in V-REP, was analyzed according to its kinematic and dynamic architecture. Regular and singular control individually was applied for this robot outside of singular boundary and inside of singular region. Switch controller was applied between regular and singular control. Two different initial positions were defined for this manipulator to observe its behavior under the various conditions.
+The results clearly show that PAHNTOM Omni robot could not enter the singular boundary with the regular control. Potential field handled the singularity problem with the attractive field and led the end effector to perform its desired task. In this study singular control guided the robot to pass the singular boundary and followed the desired task in the smooth motion of end effector in the singular direction which is defined along x axis. The switch control was designed based on the Condition number which is a parameter to show when the singular boundary starts. This control was applied in order to switch between two controllers regular and singular ones. 
+The more practical way to detect the singularity would perhaps be to monitor the rate of changes of the condition number. This rate has definitely various values when the robot moves from regular region to singular region. It means that this changing rate is increasing constantly until the robot reaches to its singular configuration, where the changing rate is at its peak. The rate of condition number can help the control algorithm to detect the singularity automatically instead of defining the exact value of condition number for switching from regular control to singular control. This method could be considered as the future work to apply for various degrees of freedom of robots.
 
 
 
