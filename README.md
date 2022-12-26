@@ -87,4 +87,23 @@ b)
 ![image](https://user-images.githubusercontent.com/54982873/209536674-011ae79b-ac0a-4f3a-8dfe-4abcc8705ca6.png)
 
 
+###REGULAR CONTROL
+In this controller of PHANTOM Omni, the last two links should have motion to lead the end effector along x direction. It is not expected to have any rotation and movement about or along y axis. If these conditions are correctly performed Omni manipulator acts like a RR planar robot. So for applying the regular control, at first it is required to perform regular controller in MATLAB for monitoring and observing the performance of the controller on this robot. 
+According to kinematic and dynamic of Omni robot,  the regular control is performed for monitoring how this Omni manipulator behaves while it is approaching the vicinity of singular boundary.
+
+![image](https://user-images.githubusercontent.com/54982873/209537030-2e93e19d-44f7-4be9-93fd-5aeb1d9c141b.png)
+
+![image](https://user-images.githubusercontent.com/54982873/209537046-e4456087-7ff0-4c15-aa2a-5c94639b9171.png)
+
+![image](https://user-images.githubusercontent.com/54982873/209537066-4d3e5bf6-d13b-429e-9e22-b88c870c4498.png)
+
+###SINGULAR CONTROL
+As explained in the previous chapter, in the singular control of Omni manipulator, the robot completely follows the desired direction outside and inside of the singular boundary. Finally manipulator reaches the singular configuration in a stable manner. The Condition number which is the largest singular value of the Jacobian matrix over the smallest value is used as a parameter to detect the singular boundary. When the manipulator approaches its singular position this number increases to the highest value. In Figure for MATLAB simulation of singular control, it shows how the Omni follows accurately the desired direction and also depicts the enhancement of Condition number value in the vicinity of singularities.
+
+![image](https://user-images.githubusercontent.com/54982873/209537153-26bfbf68-84f1-4c91-b9de-aa59e246a0fe.png)
+
+![image](https://user-images.githubusercontent.com/54982873/209537168-bc682b5a-a3d3-4d75-932d-424ea6170aab.png)
+
+
+
 
