@@ -134,4 +134,21 @@ The results clearly show that PAHNTOM Omni robot could not enter the singular bo
 The more practical way to detect the singularity would perhaps be to monitor the rate of changes of the condition number. This rate has definitely various values when the robot moves from regular region to singular region. It means that this changing rate is increasing constantly until the robot reaches to its singular configuration, where the changing rate is at its peak. The rate of condition number can help the control algorithm to detect the singularity automatically instead of defining the exact value of condition number for switching from regular control to singular control. This method could be considered as the future work to apply for various degrees of freedom of robots.
 
 
+### BIBLIOGRAPHY
+
+[1] John J. Craig, Introduction to Robotics, Mechanics and Control, Third Edition, Pearson Education International, 2005 
+
+[2] K. Chang and O. Khatib 1995 Manipulator Control at Kinematic Singularities: A dynamically consistent Strategy. Proc. IEEE/RSJ Int. Conference on Intelligent Robots and systems Pittsburg, vol. 3, pp. 84-88.
+
+[3] Mark W. Spong, Seth Hutchinson, M. Vidyasagar, Robot Modeling and Control, John Wiley&Sons, Inc., 2005. pp.149-161
+[4] O. Khatib, "A Unified Approach to Motion and Force Control of Robot Manipulators: The Operational Space Formulation," IEEE Journal of Robotics and Automation, Vol. 3, No.1, 1987.
+[5] F. Caccavale, S.Chiaverini and B. Siciliano, Singularity-Robost Second-Order Kinematic control of robot manipulator, IEEE Industrial Electronics Society ASME Dynamic Systems and Control Division IEEE Robotics and Automation Society 80125 Napoli, Italy, 1996.
+[6] Fangli Hao, Condition for line-based singularities in spatial platform manipulators, DOI: 10.1002/(SICI)1097-4563,1998.
+[7] www.coppeliarobotics.com
+[8] Denny Oetomo, Marcelo Ang Jr., Lim Ser Yong, Singularity Handling on Puma in Operational Space Formulation, DOI: 10.1007/3-540-45118-8_49, 2001
+[9] Denny Oetomo, Marcelo Ang Jr., Tao Ming Lim, Singularity Robust Manipulator Control using Virtual Joints, Singapore 119260, 2002 IEEE.
+[10] Takateru Urakubo, Hiroki Yoshioka, Tomoaki Mashimo and Xianglong Wan, Experimental Study on Efficient Use of Singular Configuration in Pulling Heavy Objects with Two-link Robot Arm, 2014 IEEE International Conference on Robotics & Automation (ICRA), Hong Kong Convention and Exhibition Center. Hong Kong, China
+[11] Brubo Siciliano, Oussama Khatib, Springer Handbook of Robotics, Springer International Publishing, 2008.pp. 72,166-169.
+[12] Seda Korkmaz, M.Sc. Thesis” Control Of Under Actuated Robot Manipulators”, Bahcesehir University, Istanbul, 2016.
+[13] Oriol Bohigas, Dimiter Zlatanov, Llu´ıs Ros, Montserrat Manubens and Josep M. Porta, Numerical Computation of Manipulator Singularities, 1998, DPI2010-18449.
 
