@@ -22,6 +22,7 @@ In this work a broad overview has been done on joints, control motions in the jo
 The control algorithm is performed in MATLAB in the aim of monitoring the behavior of RRR planar robot under the singular control and to guide the end effector through performing its desired task. The simulation is done in V-REP software according to the dynamic properties of the real robot manipulator.
 
 End – effector motion controller diagram
+
 ![image](https://user-images.githubusercontent.com/54982873/209535095-89d0d8af-eed9-47be-8c39-f47f2649b492.png)
 
 ### Potential Field
@@ -31,9 +32,11 @@ Treating the configuration of the robot in potential field with the combination 
 The potential functions are applied on 2-arm planar manipulator. The behavior which is expected from this manipulator is to avoid any collision with the obstacle surface and keep moving to get the target configuration.
 
 The following Figure is depicted path and behavior of 2R planar robot for reaching target position, in the influence of repulsive and attractive potential field. It is clearly illustrated the repulsive forces how affect every individual joint for the purpose of avoiding the collision. The forces from the final configuration attract the joints to place in their desired positions. 
+
 ![image](https://user-images.githubusercontent.com/54982873/209535479-68dd1698-5b32-4298-8723-b7a38ab6e2f4.png)
 
-As it can be followed from Figure below that the RR manipulator starts to move from the initial position [0, 1] to a the goal position of joints [0, 1] for first joint, and for second joint moves from [0, 2] as the initial position to a goal position [-1,1]. The obstacles are located in [2, -0.5] and [-2, -0.5] positions. As depicted, the motion of each joint is influenced by the potential forces, in the way to lead the manipulator to its desired joint configuration. 
+As it can be followed from Figure below that the RR manipulator starts to move from the initial position [0, 1] to a the goal position of joints [0, 1] for first joint, and for second joint moves from [0, 2] as the initial position to a goal position [-1,1]. The obstacles are located in [2, -0.5] and [-2, -0.5] positions. As depicted, the motion of each joint is influenced by the potential forces, in the way to lead the manipulator to its desired joint configuration.
+
 ![image](https://user-images.githubusercontent.com/54982873/209535619-64f9ac83-3822-4774-bc99-28cb97c0aeaf.png)
 
 ### PHANTOM OMNI MANIPULATOR
@@ -61,9 +64,11 @@ The robot manipulator in singular configuration behaves as a redundant robot whi
 First of all, for applying the singular control, it is required to compute the singular Jacobian matrix of the PHANTOM Omni. This Singular Jacobian is built on the singular frame of the end effector respects to the base frame of the manipulator. It means that the singular frame could be different from the end effector frame. To be more direct, the singularity can be occurred not exactly along or about of end effector axis. Therefore, it is essential to calculate the rotation matrix of singular frame respects to the base frame. This rotation matrix is used to find the Jacobian matrix of the singular configuration.
 
 #### Task space motion control
+
 ![image](https://user-images.githubusercontent.com/54982873/209536038-2c09a01a-f5d5-45d1-b375-ef3657d3ea11.png)
 
 #### Singular control of manipulator
+
 ![image](https://user-images.githubusercontent.com/54982873/209536130-81acd232-4626-4080-85f2-3cd43100952b.png)
 
 The control diagram as shown in Figure demonstrates decomposition of motion control in the joint space from the operational space motion control. This decoupling is based on achieving the dynamically consistent behavior of the manipulator. It means that the null space motion control torques should not have any alteration in the end effector function.
@@ -75,6 +80,7 @@ The null space torque was eliminated from the control algorithm in order to inve
 In order to observe the performance of controllers in the vicinity of singular boundary and also in the singular region, MATLAB and V-rep (Virtual Robot Experimentation Platform) are used for simulation. V-rep as a manipulator simulator can be run and communicate with the other coding language via remote API programming (Application Interface). MATLAB sends and receives data to and from V-rep.
 
 V-rep is used for different applications such as fast algorithm development, industrial automation simulator, quick prototyping and verification and remote controlling. This simulator allows controlling simulation remotely from a real robot or another PC. It includes four physics engines (Bullet Physics, ODE, Newton and Vortex Dynamic) for fast and customizable dynamics calculation, to simulate real-world physics and object interactions. V-rep can calculate forward /inverse Kinematics of any type of mechanism. It contains powerful and realistic and accurate sensor simulation which can calculate minimum distance within the customizable detection volume.
+
 ![image](https://user-images.githubusercontent.com/54982873/209536314-24796bea-d9e8-493d-8faa-70e452ebae1a.png)
 
 In V-REP simulation the Omni robot is imported as URDF (Universal Robot Description Format). The behavior of this robot and the environment where is working, is very similar to a real robot. So it is preferred to investigate on the robot control near and also in singular boundary. Joint limitation of the real robot and the danger of damaging itself in singular boundary and configuration are other important reasons to simulate with V-REP. 
