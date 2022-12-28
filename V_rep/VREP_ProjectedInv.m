@@ -1,0 +1,224 @@
+clear all;close all;clc;
+
+%% --------- VREP Setup ----------------------
+% Specify paths
+path = 'C:\Program Files\V-REP3\V-REP_PRO_EDU';
+libpath = { fullfile(path, 'programming', 'remoteApi')
+    fullfile(path, 'programming', 'remoteApiBindings', 'matlab', 'matlab')
+    fullfile(path, 'programming', 'remoteApiBindings', 'lib', 'lib')
+    }; addpath( libpath{:} );
+
+disp('Program started');
+vrep = remApi('remoteApi','extApi.h');
+vrep.simxFinish(-1);
+client = vrep.simxStart('127.0.0.1', 19997, true, true, 5000, 5);
+
+if (client>-1)
+    disp('Connected to remote API server');
+end
+
+% Constants
+vrep_steptime = 50; % from vrep [ms]
+oneshot_wait = vrep.simx_opmode_oneshot_wait;
+oneshot = vrep.simx_opmode_oneshot;
+stream = vrep.simx_opmode_streaming;
+buffer = vrep.simx_opmode_buffer;
+
+% Get joint handles
+[err, joint{1}] = vrep.simxGetObjectHandle(client,'waist', oneshot_wait);
+[err, joint{2}] = vrep.simxGetObjectHandle(client,'shoulder', oneshot_wait);
+[err, joint{3}] = vrep.simxGetObjectHandle(client,'elbow', oneshot_wait);
+
+%% --------- Time Definition ----------------------
+% Options
+t_end = 20; % end time
+dt = vrep_steptime/1000; % step time [s]
+
+%Initial positions
+%Constraint in Vertical Axis
+q0 = [[0, 60, -30]*pi/180 ...   % joint positions
+      [0, 0, 0]*pi/180];       % joint speeds
+for ii = 1:length(joint);
+    vrep.simxSetJointPosition(client,joint{ii},q0(ii),oneshot_wait);
+end
+
+[err,err,err,err,err,err,x0] = Omni_KinDyn(q0,eye(3),eye(3),eye(3));
+%[err,err,err,err,err,err,x0] = RRR_Planar_KinDyn(q0);%,eye(3),eye(3),eye(3));
+
+f = [0; 0; 0];
+
+%% --------- Simulation ----------------------
+t = 0:dt:t_end;
+q = zeros(length(t),length(q0)); %joint positions and vel
+Fq = zeros(length(t),3); %force vector
+u = zeros(length(t),3); %control input
+y = zeros(length(t),3); 
+xp = zeros(length(t),3); %end-effector positions
+%x0(1:3)=[0.135*sqrt(3) 0 0]; %lenght(m)
+%x0 =zeros(length(t),3); %lenght(m)
+
+contact = zeros(length(t),3);
+j_ct = zeros(length(t),3);
+
+% Vertical
+qf1=45;
+qf2=-2*qf1+90;
+% qf1=40+5*sin(t)';
+% qf2=-2*qf1+90;
+
+qd = [zeros(length(t),1),zeros(length(t),1) zeros(length(t),1)];
+dqd = [zeros(length(t),1),zeros(length(t),2)];
+ddqd = [zeros(length(t),1),zeros(length(t),2)];
+
+% qd = [0.1*sin(t)',qf1*(pi/180)*ones(length(t),1) qf2*(pi/180)*ones(length(t),1)];
+% dqd = [0.1*cos(t)',zeros(length(t),2)];
+% ddqd = [-0.1*sin(t)',zeros(length(t),2)];
+
+Fd = [zeros(length(t),1),0*ones(length(t),1),0*ones(length(t),1)];
+Fdt = [0*ones(length(t),1),0*ones(length(t),1),0.1*ones(length(t),1)];
+
+xd = [(x0(1) + 0.00675*ones(length(t),1)), zeros(length(t),1), x0(3)*ones(length(t),1)];
+dxd = [zeros(length(t),1) ,zeros(length(t),1),zeros(length(t),1)];
+ddxd = [zeros(length(t),1),zeros(length(t),1),zeros(length(t),1)];
+
+% xd = [0+x0(1)*ones(length(t),1),0.03+x0(2)*ones(length(t),1),x0(3)*ones(length(t),1)];
+% dxd = [zeros(length(t),1),zeros(length(t),1),zeros(length(t),1)];
+% ddxd = [zeros(length(t),1),zeros(length(t),1),zeros(length(t),1)];
+
+% Initial values
+q(1,:) = q0;
+x(1,:) = x0;
+
+% Simulation with Vrep
+vrep.simxSynchronous(client,true);
+vrep.simxStartSimulation(client,oneshot);
+fprintf('\n-- Simulation started \n')
+
+% Vrep state
+for jj = 1:3
+    % Joint angle
+    [err, q(1,jj)] = vrep.simxGetJointPosition(client, joint{jj},oneshot_wait);
+    % Constraint Force
+    [err, Fq(1,jj)] = vrep.simxGetJointForce(client, joint{jj},stream);
+end
+
+for ii = 1:length(t)-1           
+    % Control
+   [M,h,J,dJ,P,C,x] = Omni_KinDyn(q(ii,:));
+   %[M,h,J,dJ,P,C,x] = RRR_Planar_KinDyn(q(ii,:));
+    
+    Mc = (P * M) + (eye(3)-P);
+    Cc =  C ;
+    alfa = M * inv(Mc);
+    mu = (eye(3)-P)*alfa;  
+    % Vrep Contact Info
+    [err,ct]=vrep.simxReadStringStream(client,'forceDirectionAndAmplitude',stream);
+    if ct
+    contact(ii,:) = vrep.simxUnpackFloats(ct);
+    end
+    j_ct(ii,:) = J'*contact(ii,:)';
+    
+    dE = dqd(ii,:)' - q(ii,4:6)';
+    E = qd(ii,:)' - q(ii,1:3)';
+    
+   
+    Kp = 35;Kd = 10;
+    
+    dx = J*q(4:6)';
+    %Em = xd(ii,:)' - xp(ii,:)';
+    Em = xd(ii,:)' - x;
+    dEm = dxd(ii,:)' - dx;
+    Fm_star = ddxd(ii,:)' + Kp*Em + Kd*dEm  ;
+    Lambda_c = inv(J*inv(M)*J');
+    ftask1 = J.'*Lambda_c * (Fm_star) + h; 
+    Jt = Lambda_c*J*inv(M);
+    
+
+    % Reducing Control Torques;
+    %fc_r = P*J'*F_o;
+     
+    % Underactuation Scheme in Task Space
+
+    Fm_star2 = Kp*Em + Kd*dEm ;
+    fc1 =inv(J*inv(M))*(Fm_star2 - dJ*q(4:6)'+ J*inv(Mc)*(P*h-C*q(4:6)'));
+
+   
+    u(ii,:) = fc1 ;
+
+    f = u(ii,:)';
+    
+    vel = 500;
+    for jj = 1:3
+        if( u(ii,jj) >0.0 )
+            vel1 = vel;
+        elseif (u(ii,jj) <0.0)
+            vel1 = -vel;
+        else
+            vel1 = 0;
+        end
+        
+        vrep.simxSetJointTargetVelocity(client,joint{jj},vel1,oneshot);
+        vrep.simxSetJointForce(client,joint{jj},abs(u(ii,jj)),oneshot);
+  
+    end
+        
+    % Vrep commands
+    signal = vrep.simxPackFloats(u(ii,:));
+    vrep.simxSetStringSignal(client,'u',signal,oneshot_wait);    
+   
+    % Simulation step
+    vrep.simxSynchronousTrigger(client);
+    % Vrep state
+    for jj = 1:3
+        % Joint angle
+        [err, q(ii+1,jj)] = vrep.simxGetJointPosition(client, joint{jj},oneshot_wait);
+        % Joint velocity
+        [err, q(ii+1,3+jj)] = vrep.simxGetObjectFloatParameter(client, joint{jj}, 2012, oneshot_wait);
+    end
+    
+    xp(ii,:) = Omni_Kin(q(ii,:));
+    % xp(ii,:) = RRR_Planar_ForKin(q(ii,:));
+    Fj(:,ii) = (eye(3)-P)*(f-h) - mu*P*(f-h)- mu*Cc*q(4:6)';
+    vlc(:,ii) = J*q(ii,4:6)';
+    Fjc(:,ii) = inv(J')*Fj(:,ii);
+end
+
+vrep.simxPauseSimulation(client,oneshot);
+
+
+%% --------- Plots --------------------------
+
+figure(1)
+subplot(1,2,1);plot(t,u(:,1));hold on;plot(t,u(:,2),'r');hold on;plot(t,u(:,3),'g');
+ax = gca;set(ax,'Fontsize',12,'FontName','TimesNewRoman');
+legend('Joint 1','Joint 2','Joint 3');xlabel('Time [s]');ylabel('Joint Input [Nm]');
+
+subplot(1,2,2);plot(t,[0 Fjc(1,:)]);hold on;plot(t,[0 Fjc(2,:)],'r');hold on;plot(t,[0 Fjc(3,:)],'g');hold on;
+ax = gca;set(ax,'Fontsize',12,'FontName','TimesNewRoman');
+legend('x-direction','y-direction','z-direction');xlabel('Time [s]');ylabel('End Effector Force [N]');
+
+figure(2)
+subplot(2,2,1);plot(t,xp(:,1));hold on;plot(t,xd(:,1),'--r');ax = gca;set(ax,'Fontsize',12,'FontName','TimesNewRoman');
+legend('Position','Reference');xlabel('Time [s]');ylabel('x pos.[m]');
+
+subplot(2,2,2);plot(t,xp(:,2));hold on;plot(t,xd(:,2),'--r');
+ax = gca;set(ax,'Fontsize',12,'FontName','TimesNewRoman');
+legend('Position','Reference');xlabel('Time [s]');ylabel('y pos.[m]');
+
+subplot(2,2,3);plot(t,xp(:,3));hold on;plot(t,xd(:,3),'--r');
+ax = gca;set(ax,'Fontsize',12,'FontName','TimesNewRoman');
+legend('Position','Reference');xlabel('Time [s]');ylabel('z pos.[m]');
+
+subplot(2,2,4);plot(t,[0 vlc(1,:)]);hold on;plot(t,[0 vlc(2,:)],'r');hold on;plot(t,[0 vlc(3,:)],'g');
+ax = gca;set(ax,'Fontsize',12,'FontName','TimesNewRoman');
+legend('x-direction','y-direction','z-direction');xlabel('Time [s]');ylabel('End-effector Vel. [m/s]');
+
+%% --------- VREP Close  ---------------
+
+if client >= -1
+    disp('Closing vrep connection')
+    vrep.simxFinish(client);
+    pause(0.5);
+end
+
+
